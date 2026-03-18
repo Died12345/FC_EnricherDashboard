@@ -10,6 +10,26 @@
        ================================ */
 
     :root {
+      --bg: #f5f6fa;
+      --surface: #ffffff;
+      --surface2: #f0f2f7;
+      --border: #dde1ec;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #4f5de8;
+      --accent-hover: #3d4bd6;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --news: #7c3aed;
+      --linkedin: #2563eb;
+      --jina: #059669;
+      --fallback: #6b7280;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    :root.dark {
       --bg: #0d0f14;
       --surface: #161923;
       --surface2: #1e2330;
@@ -25,8 +45,6 @@
       --linkedin: #60a5fa;
       --jina: #34d399;
       --fallback: #94a3b8;
-      --radius: 10px;
-      --radius-sm: 6px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -310,7 +328,10 @@
     <h1>FusionCraft — Icebreaker Dashboard</h1>
     <p id="last-updated">Loading stats...</p>
   </div>
-  <button class="refresh-btn" onclick="loadStats()">Refresh</button>
+  <div style="display:flex; gap:0.5rem; align-items:center;">
+    <button class="refresh-btn" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <button class="refresh-btn" onclick="loadStats()">Refresh</button>
+  </div>
 </header>
 
 <div class="stats-grid">
@@ -591,6 +612,20 @@
   document.getElementById('reset-modal').addEventListener('click', function(e) {
     if (e.target === this) hideResetModal();
   });
+
+  // ===== THEME =====
+
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    document.getElementById('theme-toggle').textContent = isDark ? 'Light' : 'Dark';
+    localStorage.setItem('fc-theme', isDark ? 'dark' : 'light');
+  }
+
+  // Restore saved theme on load
+  if (localStorage.getItem('fc-theme') === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('theme-toggle').textContent = 'Light';
+  }
 
   // ===== INIT =====
   loadStats();
