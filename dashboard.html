@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FusionCraft — Icebreaker Dashboard</title>
+  <style>
+    /* ===== CONFIGURATION NOTE =====
+       Update N8N_BASE in the <script> block below to match your n8n instance URL.
+       ================================ */
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161923;
+      --surface2: #1e2330;
+      --border: #252a38;
+      --text: #e2e8f0;
+      --muted: #5a6478;
+      --accent: #5b6ef5;
+      --accent-hover: #7b8ff7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --news: #a78bfa;
+      --linkedin: #60a5fa;
+      --jina: #34d399;
+      --fallback: #94a3b8;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      transition: all 0.15s;
+    }
+
+    .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ===== STATS GRID ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.125rem;
+      transition: border-color 0.15s;
+    }
+
+    .stat-card:hover { border-color: var(--accent); }
+
+    .stat-card .label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+      margin-top: 0.3rem;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-card .sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ===== QA + PIPELINE ROW ===== */
+    .meta-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .chip .count { font-weight: 600; color: var(--text); }
+
+    /* ===== ACTIONS ===== */
+    .section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+    /* ===== SPINNER ===== */
+    .spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== LOG PANEL ===== */
+    .log-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .log-header span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .log-status {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .log-status.idle { background: var(--surface2); color: var(--muted); }
+    .log-status.running { background: rgba(91,110,245,0.15); color: var(--accent); }
+    .log-status.success { background: rgba(34,197,94,0.15); color: var(--success); }
+    .log-status.error { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    .log-body {
+      padding: 1rem;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      min-height: 100px;
+      max-height: 320px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--muted);
+    }
+
+    .log-body.has-content { color: var(--text); }
+    .log-body.is-error { color: var(--danger); }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      header { flex-direction: column; gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>FusionCraft — Icebreaker Dashboard</h1>
+    <p id="last-updated">Loading stats...</p>
+  </div>
+  <button class="refresh-btn" onclick="loadStats()">Refresh</button>
+</header>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="label">Total Leads</div>
+    <div class="value" id="stat-total">—</div>
+    <div class="sub" id="stat-awaiting-enrich">— awaiting enrichment</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Enriched</div>
+    <div class="value" id="stat-enriched">—</div>
+    <div class="sub" id="stat-awaiting-gen">— awaiting generation</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">LinkedIn Data</div>
+    <div class="value" id="stat-linkedin">—</div>
+    <div class="sub">profiles scraped</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Icebreakers</div>
+    <div class="value" id="stat-icebreakers">—</div>
+    <div class="sub">generated</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Pipeline</div>
+    <div class="value" id="stat-pipeline">—</div>
+    <div class="sub">% complete</div>
+  </div>
+</div>
+
+<div class="meta-row">
+  <div class="chip">
+    <div class="dot" style="background: var(--success)"></div>
+    Claude <span class="count" id="qa-claude">—</span>
+  </div>
+  <div class="chip">
+    <div class="dot" style="background: var(--warning)"></div>
+    Micro-fix <span class="count" id="qa-microfix">—</span>
+  </div>
+  <div class="chip">
+    <div class="dot" style="background: var(--danger)"></div>
+    Fallback <span class="count" id="qa-fallback">—</span>
+  </div>
+  <div style="flex: 1"></div>
+  <div class="chip" style="font-size:0.72rem">
+    Signal: <span id="stat-signal-breakdown" style="color:var(--text); font-weight:500; margin-left:2px">loading...</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+</div>
+
+<div class="section-label">Actions</div>
+<div class="actions">
+  <button class="btn btn-primary" id="btn-enrich" onclick="runAction('enrich', 'Run Enrichment')">
+    Run Enrichment
+  </button>
+  <button class="btn btn-primary" id="btn-generate" onclick="runAction('generate', 'Generate Icebreakers')">
+    Generate Icebreakers
+  </button>
+  <button class="btn btn-primary" id="btn-sync" onclick="runAction('sync-instantly', 'Sync to Instantly')">
+    Sync to Instantly
+  </button>
+  <div style="flex:1"></div>
+  <button class="btn btn-secondary" onclick="showResetModal()">
+    Reset Lead
+  </button>
+</div>
+
+<div class="log-panel">
+  <div class="log-header">
+    <span>Last Action Output</span>
+    <div class="log-status idle" id="log-status">Idle</div>
+  </div>
+  <div class="log-body" id="log-output">No actions run yet. Click a button above to get started.</div>
+</div>
+
+<footer>
+  <span id="footer-info">v10 · FusionCraft</span>
+  <span id="footer-refresh">Auto-refresh every 5 min</span>
+</footer>
+
+<!-- Reset Modal -->
+<div id="reset-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; display:flex; align-items:center; justify-content:center;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; width:380px; max-width:90vw;">
+    <div style="font-weight:600; margin-bottom:0.5rem;">Reset Lead</div>
+    <div style="color:var(--muted); font-size:0.8rem; margin-bottom:1rem;">Clears all enrichment and icebreaker data for this email. The lead will be re-processed on the next run.</div>
+    <input id="reset-email" type="email" placeholder="email@example.com"
+      style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:0.875rem; padding:0.6rem 0.75rem; outline:none; margin-bottom:1rem;"
+      onkeydown="if(event.key==='Enter') confirmReset()">
+    <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="hideResetModal()" style="font-size:0.8rem; padding:0.5rem 1rem;">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmReset()" style="background:var(--danger); font-size:0.8rem; padding:0.5rem 1rem;">Reset Lead</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===================================================
+  // CONFIGURATION — update this URL to your n8n instance
+  // ===================================================
+  const N8N_BASE = 'https://n8n-vdlanalytics-u37945.vm.elestio.app';
+  // ===================================================
+
+  const ENDPOINTS = {
+    enrich:           `${N8N_BASE}/webhook/enrich`,
+    generate:         `${N8N_BASE}/webhook/generate`,
+    'sync-instantly': `${N8N_BASE}/webhook/sync-instantly`,
+    stats:            `${N8N_BASE}/webhook/stats`,
+    reset:            `${N8N_BASE}/webhook/reset-lead`
+  };
+
+  let isRunning = false;
+
+  // ===== STATS =====
+
+  async function loadStats() {
+    try {
+      const res = await fetch(ENDPOINTS.stats);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const d = await res.json();
+
+      set('stat-total', d.total_leads ?? '—');
+      set('stat-enriched', d.enriched ?? '—');
+      set('stat-linkedin', d.has_linkedin ?? '—');
+      set('stat-icebreakers', d.has_icebreaker ?? '—');
+
+      const pct = d.total_leads > 0 ? Math.round((d.has_icebreaker / d.total_leads) * 100) : 0;
+      set('stat-pipeline', pct + '%');
+      document.getElementById('progress-fill').style.width = pct + '%';
+
+      set('stat-awaiting-enrich', `${d.awaiting_enrichment ?? '—'} awaiting enrichment`);
+      set('stat-awaiting-gen', `${d.awaiting_generation ?? '—'} awaiting generation`);
+
+      const qa = d.qa_breakdown || {};
+      set('qa-claude', qa.claude ?? '—');
+      set('qa-microfix', qa.microfix ?? '—');
+      set('qa-fallback', qa.fallback ?? '—');
+
+      document.getElementById('last-updated').textContent =
+        `Last updated ${new Date().toLocaleTimeString()}`;
+
+    } catch(e) {
+      document.getElementById('last-updated').textContent =
+        `Failed to load stats — check N8N_BASE URL`;
+    }
+  }
+
+  // ===== ACTIONS =====
+
+  async function runAction(action, label) {
+    if (isRunning) return;
+    isRunning = true;
+
+    const allBtns = document.querySelectorAll('.btn');
+    allBtns.forEach(b => b.disabled = true);
+
+    const btn = document.getElementById('btn-' + action.replace('-instantly', '-sync').replace('sync-', 'sync'));
+    if (btn) {
+      btn.innerHTML = `<div class="spinner"></div> Running...`;
+    }
+
+    setLogStatus('running', 'Running');
+    setLog(`Running ${label}...\n\nThis may take up to 60 seconds. Please wait.`, false, false);
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+      const res = await fetch(ENDPOINTS[action], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ triggered_from: 'dashboard', timestamp: new Date().toISOString() }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      let data;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        data = { raw: await res.text(), status_code: res.status };
+      }
+
+      setLogStatus('success', 'Done');
+      setLog(JSON.stringify(data, null, 2), true, false);
+
+      await loadStats();
+
+    } catch(e) {
+      setLogStatus('error', 'Error');
+      if (e.name === 'AbortError') {
+        setLog(`Request timed out after 120s.\n\nThe workflow may still be running in n8n. Check your n8n execution log.`, false, true);
+      } else {
+        setLog(`Error: ${e.message}\n\nCheck that:\n1. N8N_BASE is set to your correct n8n URL\n2. The workflow is active in n8n\n3. The webhook path matches`, false, true);
+      }
+    } finally {
+      isRunning = false;
+      allBtns.forEach(b => b.disabled = false);
+      restoreButtonLabels();
+    }
+  }
+
+  // ===== RESET MODAL =====
+
+  function showResetModal() {
+    document.getElementById('reset-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('reset-email').focus(), 50);
+  }
+
+  function hideResetModal() {
+    document.getElementById('reset-modal').style.display = 'none';
+    document.getElementById('reset-email').value = '';
+  }
+
+  async function confirmReset() {
+    const email = document.getElementById('reset-email').value.trim();
+    if (!email) return;
+
+    hideResetModal();
+    setLogStatus('running', 'Resetting');
+    setLog(`Resetting lead: ${email}...`, false, false);
+
+    try {
+      const res = await fetch(ENDPOINTS.reset, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      setLogStatus(data.success === false ? 'error' : 'success', data.success === false ? 'Error' : 'Done');
+      setLog(JSON.stringify(data, null, 2), true, data.success === false);
+
+      if (data.reset) await loadStats();
+
+    } catch(e) {
+      setLogStatus('error', 'Error');
+      setLog(`Error: ${e.message}`, false, true);
+    }
+  }
+
+  // ===== HELPERS =====
+
+  function set(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function setLog(text, hasContent, isError) {
+    const el = document.getElementById('log-output');
+    el.textContent = text;
+    el.className = 'log-body' + (hasContent ? ' has-content' : '') + (isError ? ' is-error' : '');
+  }
+
+  function setLogStatus(state, label) {
+    const el = document.getElementById('log-status');
+    el.textContent = label;
+    el.className = `log-status ${state}`;
+  }
+
+  function restoreButtonLabels() {
+    const labels = {
+      'btn-enrich': 'Run Enrichment',
+      'btn-generate': 'Generate Icebreakers',
+      'btn-sync': 'Sync to Instantly'
+    };
+    for (const [id, label] of Object.entries(labels)) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = label;
+    }
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('reset-modal').addEventListener('click', function(e) {
+    if (e.target === this) hideResetModal();
+  });
+
+  // ===== INIT =====
+  loadStats();
+  setInterval(loadStats, 5 * 60 * 1000);
+</script>
+</body>
+</html>
