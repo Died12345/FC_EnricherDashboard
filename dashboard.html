@@ -93,7 +93,7 @@
     /* ===== PIPELINE FLOW ===== */
     .pipeline {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 0;
       margin-bottom: 1.5rem;
       position: relative;
@@ -311,7 +311,7 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1100px) {
-      .pipeline { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+      .pipeline { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
       .stage-card { margin: 0; }
     }
     @media (max-width: 700px) {
@@ -334,26 +334,26 @@
   </div>
 </header>
 
-<!-- 5 Stage Cards -->
+<!-- 4 Stage Cards -->
 <div class="pipeline">
 
-  <!-- Stage 1: Company Screen -->
+  <!-- Stage 1: Screen + Import -->
   <div class="stage-card" id="card-s1">
     <div class="stage-num">Stage 1</div>
-    <div class="stage-title">Company Screen</div>
-    <div class="stage-desc">Read sheet, deduplicate companies, enrich with Hunter + website, classify with AI.</div>
+    <div class="stage-title">Screen + Import</div>
+    <div class="stage-desc">Deduplicate companies, enrich Hunter + website, AI classify. Re-expand leads and upsert to HubSpot.</div>
     <div class="stage-stats">
       <div class="stage-stat">
-        <span class="stat-label">Processed</span>
-        <span class="stat-val" id="s1-processed">—</span>
+        <span class="stat-label">Companies</span>
+        <span class="stat-val" id="s1-screened">—</span>
       </div>
       <div class="stage-stat">
         <span class="stat-label">Included</span>
         <span class="stat-val good" id="s1-included">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Excluded</span>
-        <span class="stat-val warn" id="s1-excluded">—</span>
+        <span class="stat-label">Leads to HubSpot</span>
+        <span class="stat-val" id="s1-leads">—</span>
       </div>
     </div>
     <div class="stage-divider"></div>
@@ -364,23 +364,23 @@
     <button class="stage-run-btn" id="btn-s1" onclick="runStage(1)">Run</button>
   </div>
 
-  <!-- Stage 2: HubSpot Import -->
+  <!-- Stage 2: Lead Enrich -->
   <div class="stage-card" id="card-s2">
     <div class="stage-num">Stage 2</div>
-    <div class="stage-title">HubSpot Import</div>
-    <div class="stage-desc">Import included companies + linked leads into HubSpot. Creates contacts &amp; companies.</div>
+    <div class="stage-title">Lead Enrich</div>
+    <div class="stage-desc">LinkedIn scrape, news search, 3 business ideas. Assigns lead tier 1–4 in HubSpot.</div>
     <div class="stage-stats">
       <div class="stage-stat">
-        <span class="stat-label">Contacts created</span>
-        <span class="stat-val" id="s2-contacts">—</span>
+        <span class="stat-label">Enriched</span>
+        <span class="stat-val good" id="s2-enriched">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Companies created</span>
-        <span class="stat-val" id="s2-companies">—</span>
+        <span class="stat-label">Tier 1–2</span>
+        <span class="stat-val" id="s2-tier12">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Skipped (exist)</span>
-        <span class="stat-val" id="s2-skipped">—</span>
+        <span class="stat-label">Tier 3–4</span>
+        <span class="stat-val warn" id="s2-tier34">—</span>
       </div>
     </div>
     <div class="stage-divider"></div>
@@ -391,23 +391,23 @@
     <button class="stage-run-btn" id="btn-s2" onclick="runStage(2)">Run</button>
   </div>
 
-  <!-- Stage 3: Lead Enrich -->
+  <!-- Stage 3: Icebreaker -->
   <div class="stage-card" id="card-s3">
     <div class="stage-num">Stage 3</div>
-    <div class="stage-title">Lead Enrich</div>
-    <div class="stage-desc">LinkedIn scrape, news search, 3 business ideas. Assigns lead tier 1–4 in HubSpot.</div>
+    <div class="stage-title">Icebreaker</div>
+    <div class="stage-desc">Generate personalised icebreakers for Tier 1–2 leads using all enrichment data.</div>
     <div class="stage-stats">
       <div class="stage-stat">
-        <span class="stat-label">Enriched</span>
-        <span class="stat-val good" id="s3-enriched">—</span>
+        <span class="stat-label">Generated</span>
+        <span class="stat-val good" id="s3-generated">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Tier 1–2</span>
-        <span class="stat-val" id="s3-tier12">—</span>
+        <span class="stat-label">Ready to push</span>
+        <span class="stat-val" id="s3-ready">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Tier 3–4</span>
-        <span class="stat-val warn" id="s3-tier34">—</span>
+        <span class="stat-label">Remaining</span>
+        <span class="stat-val" id="s3-remaining">—</span>
       </div>
     </div>
     <div class="stage-divider"></div>
@@ -418,23 +418,23 @@
     <button class="stage-run-btn" id="btn-s3" onclick="runStage(3)">Run</button>
   </div>
 
-  <!-- Stage 4: Icebreaker -->
+  <!-- Stage 4: Instantly Push -->
   <div class="stage-card" id="card-s4">
     <div class="stage-num">Stage 4</div>
-    <div class="stage-title">Icebreaker</div>
-    <div class="stage-desc">Generate personalised icebreakers for Tier 1–2 leads using all enrichment data.</div>
+    <div class="stage-title">Instantly Push</div>
+    <div class="stage-desc">Push Tier 1 leads with icebreaker to Instantly campaign. Tags HubSpot as enrolled.</div>
     <div class="stage-stats">
       <div class="stage-stat">
-        <span class="stat-label">Generated</span>
-        <span class="stat-val good" id="s4-generated">—</span>
+        <span class="stat-label">Pushed</span>
+        <span class="stat-val good" id="s4-pushed">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Ready to push</span>
-        <span class="stat-val" id="s4-ready">—</span>
+        <span class="stat-label">Already enrolled</span>
+        <span class="stat-val" id="s4-enrolled">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Remaining</span>
-        <span class="stat-val" id="s4-remaining">—</span>
+        <span class="stat-label">Errors</span>
+        <span class="stat-val warn" id="s4-errors">—</span>
       </div>
     </div>
     <div class="stage-divider"></div>
@@ -443,33 +443,6 @@
       <span style="font-size:0.68rem; color:var(--muted);" id="s4-last-run">Never run</span>
     </div>
     <button class="stage-run-btn" id="btn-s4" onclick="runStage(4)">Run</button>
-  </div>
-
-  <!-- Stage 5: Instantly Push -->
-  <div class="stage-card" id="card-s5">
-    <div class="stage-num">Stage 5</div>
-    <div class="stage-title">Instantly Push</div>
-    <div class="stage-desc">Push Tier 1 leads with icebreaker to Instantly campaign. Tags HubSpot as enrolled.</div>
-    <div class="stage-stats">
-      <div class="stage-stat">
-        <span class="stat-label">Pushed</span>
-        <span class="stat-val good" id="s5-pushed">—</span>
-      </div>
-      <div class="stage-stat">
-        <span class="stat-label">Already enrolled</span>
-        <span class="stat-val" id="s5-enrolled">—</span>
-      </div>
-      <div class="stage-stat">
-        <span class="stat-label">Errors</span>
-        <span class="stat-val warn" id="s5-errors">—</span>
-      </div>
-    </div>
-    <div class="stage-divider"></div>
-    <div style="display:flex; align-items:center; justify-content:space-between;">
-      <div class="stage-status idle" id="s5-status">Idle</div>
-      <span style="font-size:0.68rem; color:var(--muted);" id="s5-last-run">Never run</span>
-    </div>
-    <button class="stage-run-btn" id="btn-s5" onclick="runStage(5)">Run</button>
   </div>
 
 </div>
@@ -484,7 +457,7 @@
 </div>
 
 <footer>
-  <span>v11 · FusionCraft Lead Pipeline</span>
+  <span>v12 · FusionCraft Lead Pipeline</span>
   <span id="footer-info">Auto-refresh every 5 min</span>
 </footer>
 
@@ -497,46 +470,39 @@
 
   const STAGE_WEBHOOKS = {
     1: `${N8N_BASE}/webhook/stage1-company-screen`,
-    2: `${N8N_BASE}/webhook/stage2-hubspot-import`,
-    3: `${N8N_BASE}/webhook/stage3-lead-enrich`,
-    4: `${N8N_BASE}/webhook/stage4-icebreaker`,
-    5: `${N8N_BASE}/webhook/stage5-instantly-push`
+    2: `${N8N_BASE}/webhook/stage3-lead-enrich`,
+    3: `${N8N_BASE}/webhook/stage4-icebreaker`,
+    4: `${N8N_BASE}/webhook/stage5-instantly-push`
   };
 
   const STAGE_LABELS = {
-    1: 'Company Screen',
-    2: 'HubSpot Import',
-    3: 'Lead Enrich',
-    4: 'Icebreaker',
-    5: 'Instantly Push'
+    1: 'Screen + Import',
+    2: 'Lead Enrich',
+    3: 'Icebreaker',
+    4: 'Instantly Push'
   };
 
   // Stat fields to populate from each stage's webhook response
   const STAGE_STAT_MAP = {
     1: [
-      { key: 'companies_processed', id: 's1-processed' },
-      { key: 'included',            id: 's1-included' },
-      { key: 'excluded',            id: 's1-excluded' }
+      { key: 'companies_screened',  id: 's1-screened' },
+      { key: 'companies_included',  id: 's1-included' },
+      { key: 'leads_upserted',      id: 's1-leads' }
     ],
     2: [
-      { key: 'contacts_created',   id: 's2-contacts' },
-      { key: 'companies_created',  id: 's2-companies' },
-      { key: 'skipped',            id: 's2-skipped' }
+      { key: 'enriched',            id: 's2-enriched' },
+      { key: 'tier_1_2',            id: 's2-tier12' },
+      { key: 'tier_3_4',            id: 's2-tier34' }
     ],
     3: [
-      { key: 'enriched',           id: 's3-enriched' },
-      { key: 'tier_1_2',           id: 's3-tier12' },
-      { key: 'tier_3_4',           id: 's3-tier34' }
+      { key: 'generated',           id: 's3-generated' },
+      { key: 'ready_to_push',       id: 's3-ready' },
+      { key: 'remaining',           id: 's3-remaining' }
     ],
     4: [
-      { key: 'generated',          id: 's4-generated' },
-      { key: 'ready_to_push',      id: 's4-ready' },
-      { key: 'remaining',          id: 's4-remaining' }
-    ],
-    5: [
-      { key: 'pushed',             id: 's5-pushed' },
-      { key: 'already_enrolled',   id: 's5-enrolled' },
-      { key: 'errors',             id: 's5-errors' }
+      { key: 'pushed',              id: 's4-pushed' },
+      { key: 'already_enrolled',    id: 's4-enrolled' },
+      { key: 'errors',              id: 's4-errors' }
     ]
   };
 
@@ -552,7 +518,7 @@
     const label = STAGE_LABELS[stageNum];
 
     // Disable all run buttons
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 4; i++) {
       const btn = document.getElementById('btn-s' + i);
       if (btn) btn.disabled = true;
     }
@@ -624,7 +590,7 @@
     } finally {
       activeStage = null;
       // Re-enable buttons
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById('btn-s' + i);
         if (btn) { btn.disabled = false; btn.innerHTML = 'Run'; }
       }
@@ -680,7 +646,7 @@
 
   function refreshAllStats() {
     const stored = loadStageData();
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 4; i++) {
       if (!stored[i]) continue;
       const { data, ts } = stored[i];
       const statMap = STAGE_STAT_MAP[i] || [];
