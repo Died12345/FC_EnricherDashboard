@@ -337,22 +337,22 @@
 <!-- 4 Stage Cards -->
 <div class="pipeline">
 
-  <!-- Stage 1: Screen + Import -->
+  <!-- Stage 1: Screen -->
   <div class="stage-card" id="card-s1">
     <div class="stage-num">Stage 1</div>
-    <div class="stage-title">Screen + Import</div>
-    <div class="stage-desc">Deduplicate companies, enrich Hunter + website, AI classify. Re-expand leads and upsert to HubSpot.</div>
+    <div class="stage-title">Screen Companies</div>
+    <div class="stage-desc">Deduplicate companies, scrape website, AI classify ICP fit. Upload campaign-included leads to HubSpot.</div>
     <div class="stage-stats">
       <div class="stage-stat">
-        <span class="stat-label">Companies</span>
+        <span class="stat-label">Leads processed</span>
         <span class="stat-val" id="s1-screened">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Included</span>
+        <span class="stat-label">Campaign included</span>
         <span class="stat-val good" id="s1-included">—</span>
       </div>
       <div class="stage-stat">
-        <span class="stat-label">Leads to HubSpot</span>
+        <span class="stat-label">Uploaded to HubSpot</span>
         <span class="stat-val" id="s1-leads">—</span>
       </div>
     </div>
@@ -371,12 +371,12 @@
     <div class="stage-desc">LinkedIn scrape, news search, 3 business ideas. Assigns lead tier 1–4 in HubSpot.</div>
     <div class="stage-stats">
       <div class="stage-stat">
-        <span class="stat-label">Enriched</span>
-        <span class="stat-val good" id="s2-enriched">—</span>
+        <span class="stat-label">Leads processed</span>
+        <span class="stat-val" id="s2-enriched">—</span>
       </div>
       <div class="stage-stat">
         <span class="stat-label">Tier 1–2</span>
-        <span class="stat-val" id="s2-tier12">—</span>
+        <span class="stat-val good" id="s2-tier12">—</span>
       </div>
       <div class="stage-stat">
         <span class="stat-label">Tier 3–4</span>
@@ -457,7 +457,7 @@
 </div>
 
 <footer>
-  <span>v12 · FusionCraft Lead Pipeline</span>
+  <span>v13 · FusionCraft Lead Pipeline</span>
   <span id="footer-info">Auto-refresh every 5 min</span>
 </footer>
 
@@ -470,13 +470,13 @@
 
   const STAGE_WEBHOOKS = {
     1: `${N8N_BASE}/webhook/stage1-company-screen`,
-    2: `${N8N_BASE}/webhook/stage3-lead-enrich`,
-    3: `${N8N_BASE}/webhook/stage4-icebreaker`,
-    4: `${N8N_BASE}/webhook/stage5-instantly-push`
+    2: `${N8N_BASE}/webhook/3bb85502-078e-4edc-b5b4-fe0d3681f468`,
+    3: `${N8N_BASE}/webhook/stage3-icebreaker`,
+    4: `${N8N_BASE}/webhook/stage4-instantly-push`
   };
 
   const STAGE_LABELS = {
-    1: 'Screen + Import',
+    1: 'Screen Companies',
     2: 'Lead Enrich',
     3: 'Icebreaker',
     4: 'Instantly Push'
@@ -485,12 +485,12 @@
   // Stat fields to populate from each stage's webhook response
   const STAGE_STAT_MAP = {
     1: [
-      { key: 'companies_screened',  id: 's1-screened' },
-      { key: 'companies_included',  id: 's1-included' },
-      { key: 'leads_upserted',      id: 's1-leads' }
+      { key: 'leads_processed',     id: 's1-screened' },
+      { key: 'campaign_included',   id: 's1-included' },
+      { key: 'uploaded_to_hubspot', id: 's1-leads' }
     ],
     2: [
-      { key: 'enriched',            id: 's2-enriched' },
+      { key: 'leads_processed',     id: 's2-enriched' },
       { key: 'tier_1_2',            id: 's2-tier12' },
       { key: 'tier_3_4',            id: 's2-tier34' }
     ],
@@ -547,8 +547,13 @@
       clearTimeout(timeoutId);
 
       let data;
-      const ct = res.headers.get('content-type') || '';
-      data = ct.includes('application/json') ? await res.json() : { raw: await res.text(), status_code: res.status };
+      const rawText = await res.text();
+      if (!rawText.trim()) {
+        data = { raw: '(empty response — workflow may have no leads queued)', status_code: res.status };
+      } else {
+        try { data = JSON.parse(rawText); }
+        catch(_) { data = { raw: rawText, status_code: res.status }; }
+      }
 
       // Populate stage stats from response
       const statMap = STAGE_STAT_MAP[stageNum] || [];
