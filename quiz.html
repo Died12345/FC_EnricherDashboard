@@ -207,7 +207,7 @@
 
 <div class="actions">
   <button class="btn btn-secondary" onclick="prev()" id="prev-btn">← Vorige</button>
-  <button class="btn btn-primary" onclick="check()" id="check-btn">Controleer</button>
+  <button class="btn btn-primary" onclick="checkAll()" id="check-btn">Controleer alles</button>
   <button class="btn btn-secondary" onclick="next()" id="next-btn">Volgende →</button>
   <span class="feedback" id="feedback"></span>
 </div>
@@ -217,13 +217,12 @@
   <input type="number" id="jump-input" min="1" max="500" placeholder="1-500">
   <button class="ctrl-btn" onclick="jumpTo()">Ga</button>
   <span style="margin-left:auto; display:flex; gap:0.4rem;">
-    <button class="ctrl-btn" onclick="checkAll()" style="border-color:var(--accent); color:var(--accent);">Controleer alles</button>
     <button class="ctrl-btn" onclick="showSummary()">Overzicht</button>
   </span>
 </div>
 
 <footer>
-  Toetsenbord: <b>1/A</b>, <b>2/B</b>, <b>3/C</b> om te kiezen · <b>Enter</b> controleer · <b>←/→</b> navigeer
+  Toetsenbord: <b>1/A</b>, <b>2/B</b>, <b>3/C</b> om te kiezen · <b>←/→</b> navigeer
 </footer>
 
 </div>
@@ -289,9 +288,8 @@ function render() {
       ${opts.map(letter => {
         const cls = ['opt'];
         if (picked === letter) cls.push('selected');
-        if (checked) {
-          if (letter === correct) cls.push('correct');
-          else if (letter === picked) cls.push('wrong');
+        if (checked && letter === picked) {
+          cls.push(result.correct ? 'correct' : 'wrong');
         }
         return `
           <label class="${cls.join(' ')}" data-letter="${letter}">
@@ -318,9 +316,9 @@ function render() {
   const fb = document.getElementById('feedback');
   if (checked) {
     if (result.correct) {
-      fb.textContent = '✓ Juist!'; fb.className = 'feedback good';
+      fb.textContent = '✓ Juist'; fb.className = 'feedback good';
     } else {
-      fb.textContent = `✗ Het juiste antwoord is ${correct.toUpperCase()}.`;
+      fb.textContent = '✗ Fout';
       fb.className = 'feedback bad';
     }
   } else {
@@ -330,16 +328,6 @@ function render() {
   // button states
   document.getElementById('prev-btn').disabled = state.index === 0;
   document.getElementById('next-btn').disabled = state.index === QUESTIONS.length - 1;
-  document.getElementById('check-btn').disabled = checked || !picked;
-}
-
-function check() {
-  const { q, origIdx } = currentQ();
-  const r = state.results[origIdx];
-  if (!r || !r.picked) return;
-  r.checked = true;
-  r.correct = (r.picked === q.ans);
-  saveState(); render();
 }
 
 function checkAll() {
@@ -434,7 +422,7 @@ function showSummary() {
   if (wrongList.length) {
     html += `<div style="text-align:left; max-width:420px; margin:1rem auto 0;">
       <b>Foute vragen:</b><div style="margin-top:0.4rem; font-size:0.85rem;">${
-        wrongList.map(w => `Q${w.n}: koos <b>${w.picked.toUpperCase()}</b>, juist was <b>${w.correct.toUpperCase()}</b>`).join('<br>')
+        wrongList.map(w => `Q${w.n}: fout`).join(' · ')
       }</div></div>`;
   }
   html += `<div style="margin-top:1rem;"><button class="btn btn-secondary" onclick="render()">← Terug naar quiz</button></div>`;
@@ -466,7 +454,6 @@ document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   if (e.key === 'ArrowLeft') prev();
   else if (e.key === 'ArrowRight') next();
-  else if (e.key === 'Enter') check();
   else if (e.key === '1' || e.key.toLowerCase() === 'a') pick('a');
   else if (e.key === '2' || e.key.toLowerCase() === 'b') pick('b');
   else if (e.key === '3' || e.key.toLowerCase() === 'c') pick('c');
