@@ -216,7 +216,8 @@
   Spring naar:
   <input type="number" id="jump-input" min="1" max="500" placeholder="1-500">
   <button class="ctrl-btn" onclick="jumpTo()">Ga</button>
-  <span style="margin-left:auto;" id="show-summary-link">
+  <span style="margin-left:auto; display:flex; gap:0.4rem;">
+    <button class="ctrl-btn" onclick="checkAll()" style="border-color:var(--accent); color:var(--accent);">Controleer alles</button>
     <button class="ctrl-btn" onclick="showSummary()">Overzicht</button>
   </span>
 </div>
@@ -339,6 +340,31 @@ function check() {
   r.checked = true;
   r.correct = (r.picked === q.ans);
   saveState(); render();
+}
+
+function checkAll() {
+  let graded = 0, unanswered = 0;
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const r = state.results[i];
+    if (r && r.picked) {
+      if (!r.checked) {
+        r.checked = true;
+        r.correct = (r.picked === QUESTIONS[i].ans);
+      }
+      graded++;
+    } else {
+      unanswered++;
+    }
+  }
+  if (graded === 0) {
+    alert('Je hebt nog geen vragen ingevuld. Kies eerst een antwoord (a/b/c) bij één of meer vragen.');
+    return;
+  }
+  saveState();
+  showSummary();
+  if (unanswered > 0) {
+    // soft notice — summary already shows the count
+  }
 }
 
 function next() {
